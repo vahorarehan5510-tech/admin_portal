@@ -46,6 +46,7 @@
                     <div class="admin-btn-grid">
                         <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 2)">➕ Add Branch</button>
                         <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 4)">📘 Add Subject</button>
+                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 'syllabus')">📋 Add Syllabus</button>
                         <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 5)">📄 Add Chapter</button>
                         <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 6)">📁 Upload Links</button>
                         <button class="btn-admin btn-warning-admin" onclick="adminNext(1, 'notif')">📢 Post Notice</button>
@@ -74,6 +75,18 @@
                     <div class="admin-btn-group">
                         <button class="btn-admin btn-secondary-admin" onclick="adminNext(4, 1)">Back</button>
                         <button class="btn-admin btn-primary-admin" onclick="addSubject()">Save Subject</button>
+                    </div>
+                </div>
+
+                <div id="admin-step-syllabus" class="admin-step hidden">
+                    <h2>📋 Add Subject Syllabus</h2>
+                    <select id="adm-syl-branch-select" onchange="updateAdminSemSelect('adm-syl-branch-select', 'adm-syl-sem-select')"><option value="">-- Select Branch --</option></select>
+                    <select id="adm-syl-sem-select" onchange="updateAdminSubSelect('adm-syl-branch-select', 'adm-syl-sem-select', 'adm-syl-sub-select')"><option value="">-- Select Semester --</option></select>
+                    <select id="adm-syl-sub-select"><option value="">-- Select Subject --</option></select>
+                    <input type="url" id="adm-syl-link" placeholder="Google Drive PDF Link for Syllabus">
+                    <div class="admin-btn-group">
+                        <button class="btn-admin btn-secondary-admin" onclick="adminNext('syllabus', 1)">Back</button>
+                        <button class="btn-admin btn-primary-admin" onclick="addSyllabusLink()">Save Syllabus</button>
                     </div>
                 </div>
 
