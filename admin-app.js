@@ -94,11 +94,19 @@ function updateAdminSemSelect(bId, sId) {
     if(branch) { for(let i=1; i<=6; i++) { sSelect.innerHTML += `<option value="Sem ${i}">Sem ${i}</option>`; } }
 }
 
+// FIXED CRITICAL LOGIC MISMATCH: PYQ અપલોડ માટે પણ સબ્જેક્ટ હંમેશા ઓરિજિનલ db.branches માંથી જ લોડ થશે
 function updateAdminSubSelect(bId, sId, subId) {
-    let branch = document.getElementById(bId).value; let sem = document.getElementById(sId).value; let subSelect = document.getElementById(subId);
+    let branch = document.getElementById(bId).value; 
+    let sem = document.getElementById(sId).value; 
+    let subSelect = document.getElementById(subId);
+    
     subSelect.innerHTML = '<option value="">-- Select Subject --</option>';
-    let targetDB = bId.includes('pyq') ? db.pyqs : db.branches;
-    if(branch && sem && targetDB[branch] && targetDB[branch][sem]) { Object.keys(targetDB[branch][sem]).forEach(sub => { subSelect.innerHTML += `<option value="${sub}">${sub}</option>`; }); }
+    
+    if(branch && sem && db.branches && db.branches[branch] && db.branches[branch][sem]) { 
+        Object.keys(db.branches[branch][sem]).forEach(sub => { 
+            subSelect.innerHTML += `<option value="${sub}">${sub}</option>`; 
+        }); 
+    }
 }
 
 function updateAdminChSelect() {
@@ -144,7 +152,7 @@ function addSyllabusLink() {
         alert("Syllabus configuration updated successfully!");
         document.getElementById('adm-syl-link').value = "";
         adminNext('syllabus', 1);
-    } else { alert("બધી માહિતી ભરો!"); }
+    } else { alert("Please fill all information!"); }
 }
 
 function addChapter() {
