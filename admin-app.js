@@ -18,12 +18,11 @@ let db = { branches: {}, pyqs: {} };
 window.onload = function() {
     firebase.auth().onAuthStateChanged((user) => {
         if (user && user.email === "vahorarehan5510@gmail.com") {
-            // Authorized Admin Email
             document.getElementById('admin-auth-screen').classList.add('hidden');
             document.getElementById('admin-dashboard-screen').classList.remove('hidden');
             document.getElementById('admin-email-display').innerText = user.email;
             
-            // Start listening to DB
+            // Listen to Database Realtime
             listenToDatabase();
         } else {
             if(user) {
@@ -61,7 +60,9 @@ function listenToDatabase() {
     });
 }
 
-function saveDB() { database.ref('portal_db').set(db); }
+function saveDB() { 
+    database.ref('portal_db').set(db); 
+}
 
 function adminNext(curr, next) { 
     document.querySelectorAll('.admin-step').forEach(el => el.classList.add('hidden'));
@@ -86,7 +87,7 @@ function calculateLiveCounters() {
 }
 
 function updateAdminDropdowns() {
-    let bSelects = ['adm-sub-branch-select', 'adm-ch-branch-select', 'adm-mat-branch-select', 'adm-del-branch-select', 'adm-pyq-branch-select'];
+    let bSelects = ['adm-sub-branch-select', 'adm-ch-branch-select', 'adm-mat-branch-select', 'adm-del-branch-select', 'adm-pyq-branch-select', 'adm-syl-branch-select'];
     let branchList = (db && db.branches && Object.keys(db.branches).length > 0) ? Object.keys(db.branches) : baseStaticBranches;
     bSelects.forEach(id => {
         let el = document.getElementById(id); if(el) { el.innerHTML = '<option value="">-- Select Branch --</option>'; branchList.forEach(b => { el.innerHTML += `<option value="${b}">${b}</option>`; }); }
@@ -116,8 +117,7 @@ function updateAdminChSelect() {
 
 function addBranch() {
     let name = document.getElementById('adm-branch-name').value.trim();
-    if(name) { if(!db.branches[name]) db.branches[name] = {}; saveDB(); alert(`Branch "${name}" saved.`); }
-    adminNext(2, 1);
+    if(name) { if(!db.branches[name]) db.branches[name] = {}; saveDB(); alert(`Branch "${name}" saved.`); adminNext(2, 1); }
 }
 
 function addSubject() {
@@ -129,11 +129,28 @@ function addSubject() {
     if(branch && sem && sub) {
         if(!db.branches[branch]) db.branches[branch] = {}; 
         if(!db.branches[branch][sem]) db.branches[branch][sem] = {};
-        db.branches[branch][sem][sub] = { price: parseInt(price), chapters: [] }; 
+        db.branches[branch][sem][sub] = { price: parseInt(price), chapters: [], syllabus: "" }; 
         saveDB(); 
         alert(`Subject "${sub}" successfully added!`);
+        document.getElementById('adm-sub-name').value = "";
         adminNext(4, 1);
     } else { alert("Please fill all information!"); }
+}
+
+function addSyllabusLink() {
+    let branch = document.getElementById('adm-syl-branch-select').value;
+    let sem = document.getElementById('adm-syl-sem-select').value;
+    let sub = document.getElementById('adm-syl-sub-select').value;
+    let link = document.getElementById('adm-syl-link').value.trim();
+
+    if(branch && sem && sub && link) {
+        if(!db.branches[branch][sem][sub]) db.branches[branch][sem][sub] = { chapters: [], price: 0 };
+        db.branches[branch][sem][sub].syllabus = link;
+        saveDB();
+        alert("Syllabus link synced and saved!");
+        document.getElementById('adm-syl-link').value = "";
+        adminNext('syllabus', 1);
+    } else { alert("બધી માહિતી ભરો!"); }
 }
 
 function addChapter() {
@@ -146,6 +163,7 @@ function addChapter() {
         if(!db.branches[branch][sem][sub].chapters) db.branches[branch][sem][sub].chapters = [];
         db.branches[branch][sem][sub].chapters.push({ name: chName, yt: "#", pdf: "#" }); 
         saveDB(); alert(`Chapter "${chName}" added.`); 
+        document.getElementById('adm-ch-name').value = "";
         adminNext(5, 1);
     } else { alert("Please select all parameters!"); }
 }
@@ -155,7 +173,9 @@ function addMaterial() {
     if(branch && sem && sub && chIdx !== "") { 
         let ch = db.branches[branch][sem][sub].chapters[chIdx];
         if(yt) ch.yt = yt; if(pdf) ch.pdf = pdf; 
-        saveDB(); alert("Links updated successfully!"); 
+        saveDB(); alert("Material links synchronized!"); 
+        document.getElementById('adm-mat-yt').value = "";
+        document.getElementById('adm-mat-pdf').value = "";
         adminNext(6, 1);
     }
 }
@@ -164,7 +184,10 @@ function addPYQ() {
     let branch = document.getElementById('adm-pyq-branch-select').value; let sem = document.getElementById('adm-pyq-sem-select').value; let sub = document.getElementById('adm-pyq-sub-select').value; let year = document.getElementById('adm-pyq-year').value.trim(); let link = document.getElementById('adm-pyq-link').value.trim();
     if(branch && sem && sub && year && link) {
         if(!db.pyqs) db.pyqs = {}; if(!db.pyqs[branch]) db.pyqs[branch] = {}; if(!db.pyqs[branch][sem]) db.pyqs[branch][sem] = {}; if(!db.pyqs[branch][sem][sub]) db.pyqs[branch][sem][sub] = [];
-        db.pyqs[branch][sem][sub].push({ year: year, link: link }); saveDB(); alert(`PYQ Paper for ${year} saved.`);
+        db.pyqs[branch][sem][sub].push({ year: year, link: link }); 
+        saveDB(); alert(`PYQ Paper for ${year} linked completely.`);
+        document.getElementById('adm-pyq-year').value = "";
+        document.getElementById('adm-pyq-link').value = "";
         adminNext('pyq', 1);
     }
 }
