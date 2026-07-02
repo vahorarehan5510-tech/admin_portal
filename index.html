@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⚡ Study Portal - Admin Console</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -26,7 +26,7 @@
 
     <div id="admin-dashboard-screen" class="hidden">
         <header class="admin-header">
-            <h2>⚡ CENTRAL CONTROL CENTER</h2>
+            <h2>⚡ CONTROL CENTER</h2>
             <div class="header-right">
                 <span id="admin-email-display"></span>
                 <button class="btn-logout-admin" onclick="adminLogout()">Sign Out</button>
@@ -37,23 +37,23 @@
             <div class="admin-dashboard-stats">
                 <div class="stat-box">Total Branches<strong id="stat-branches">0</strong></div>
                 <div class="stat-box">Total Subjects<strong id="stat-subjects">0</strong></div>
-                <div class="stat-box">Registered Students<strong id="stat-students">0</strong></div>
+                <div class="stat-box">Students<strong id="stat-students">0</strong></div>
             </div>
 
             <div class="admin-card-glass">
                 <div id="admin-step-1" class="admin-step">
                     <h2>Menu Control Panel</h2>
                     <div class="admin-btn-grid">
-                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 2)">➕ Add Branch</button>
-                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 4)">📘 Add Subject</button>
-                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 'syllabus')">📋 Add Syllabus</button>
-                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 5)">📄 Add Chapter</button>
-                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 6)">📁 Upload Links</button>
-                        <button class="btn-admin btn-warning-admin" onclick="adminNext(1, 'notif')">📢 Post Notice</button>
-                        <button class="btn-admin btn-warning-admin" onclick="adminNext(1, 'pyq')">📜 Add PYQs</button>
-                        <button class="btn-admin btn-danger-admin" onclick="openDeleteManager()" style="grid-column: span 2;">🗑️ Modify/Delete DataCenter</button>
-                        <button class="btn-admin btn-secondary-admin" onclick="openStudentManager()" style="grid-column: span 2;">👥 Student Management</button>
-                        <button class="btn-admin btn-warning-admin" onclick="openPaymentManager()" style="grid-column: span 2; background-color: #10b981;">💰 Payment Approvals</button>
+                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 2)"> Branch ➕</button>
+                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 4)"> Subject 📘</button>
+                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 'syllabus')"> Syllabus 📋</button>
+                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 5)"> Chapter 📄</button>
+                        <button class="btn-admin btn-primary-admin" onclick="adminNext(1, 6)"> Material Links 📁</button>
+                        <button class="btn-admin btn-warning-admin" onclick="adminNext(1, 'notif')"> Post Notice 📢</button>
+                        <button class="btn-admin btn-warning-admin" onclick="adminNext(1, 'pyq')"> Add PYQs 📜</button>
+                        <button class="btn-admin btn-danger-admin" onclick="openDeleteManager()" style="grid-column: span 2;">Modify / Delete Data 🗑️</button>
+                        <button class="btn-admin btn-secondary-admin" onclick="openStudentManager()" style="grid-column: span 2;">Student Management 👥</button>
+                        <button class="btn-admin btn-warning-admin" onclick="openPaymentManager()" style="grid-column: span 2; background-color: #10b981;">UTR Payment Approvals 💰</button>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@
                     <select id="adm-sub-branch-select" onchange="updateAdminSemSelect('adm-sub-branch-select', 'adm-sub-sem-select')"><option value="">-- Select Branch --</option></select>
                     <select id="adm-sub-sem-select"><option value="">-- Select Semester --</option></select>
                     <input type="text" id="adm-sub-name" placeholder="e.g. Data Structure">
-                    <input type="number" id="adm-sub-price" placeholder="Price (0 for Free, 99 for Premium)" value="0">
+                    <input type="number" id="adm-sub-price" placeholder="Price (0 for Free)" value="0">
                     <div class="admin-btn-group">
                         <button class="btn-admin btn-secondary-admin" onclick="adminNext(4, 1)">Back</button>
                         <button class="btn-admin btn-primary-admin" onclick="addSubject()">Save Subject</button>
@@ -131,10 +131,10 @@
 
                 <div id="admin-step-notif" class="admin-step hidden">
                     <h2>📢 Push Global Notification</h2>
-                    <textarea id="adm-notif-text" placeholder="Type announcement for all students..." style="height:100px; resize:none;"></textarea>
+                    <textarea id="adm-notif-text" placeholder="Type announcement for all students..."></textarea>
                     <div class="admin-btn-group">
                         <button class="btn-admin btn-secondary-admin" onclick="adminNext('notif', 1)">Back</button>
-                        <button class="btn-admin btn-primary-admin" onclick="postNotification()">Push to Portal</button>
+                        <button class="btn-admin btn-primary-admin" onclick="postNotification()">Push Notice</button>
                     </div>
                 </div>
 
@@ -142,20 +142,20 @@
                     <h2>🗑️ Data Management Center</h2>
                     <select id="adm-del-branch-select" onchange="updateAdminSemSelect('adm-del-branch-select', 'adm-del-sem-select')"><option value="">-- Select Branch --</option></select>
                     <select id="adm-del-sem-select" onchange="renderDeleteItems()"><option value="">-- Select Semester --</option></select>
-                    <div id="delete-items-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px; padding-right:5px;"></div>
-                    <button class="btn-admin btn-secondary-admin" style="width:100%;" onclick="adminNext('delete', 1)">Main Menu</button>
+                    <div id="delete-items-list" class="scrollable-list"></div>
+                    <button class="btn-admin btn-secondary-admin" style="width:100%; margin-top:10px;" onclick="adminNext('delete', 1)">Main Menu</button>
                 </div>
 
                 <div id="admin-step-students" class="admin-step hidden">
                     <h2>👥 Registered Students</h2>
-                    <div id="admin-student-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 15px; padding-right:5px;"></div>
-                    <button class="btn-admin btn-secondary-admin" style="width:100%;" onclick="adminNext('students', 1)">Main Menu</button>
+                    <div id="admin-student-list" class="scrollable-list"></div>
+                    <button class="btn-admin btn-secondary-admin" style="width:100%; margin-top:10px;" onclick="adminNext('students', 1)">Main Menu</button>
                 </div>
 
                 <div id="admin-step-payments" class="admin-step hidden">
-                    <h2>💰 Pending UTR Approvals Center</h2>
-                    <div id="admin-payment-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 15px; padding-right:5px;"></div>
-                    <button class="btn-admin btn-secondary-admin" style="width:100%;" onclick="adminNext('payments', 1)">Main Menu</button>
+                    <h2>💰 Pending Payment Request</h2>
+                    <div id="admin-payment-list" class="scrollable-list"></div>
+                    <button class="btn-admin btn-secondary-admin" style="width:100%; margin-top:10px;" onclick="adminNext('payments', 1)">Main Menu</button>
                 </div>
             </div>
         </main>
