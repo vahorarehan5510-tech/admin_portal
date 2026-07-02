@@ -21,12 +21,10 @@ window.onload = function() {
             document.getElementById('admin-auth-screen').classList.add('hidden');
             document.getElementById('admin-dashboard-screen').classList.remove('hidden');
             document.getElementById('admin-email-display').innerText = user.email;
-            
-            // Listen to Database Realtime
             listenToDatabase();
         } else {
             if(user) {
-                alert("Access Denied: You are not authorized as an Administrator.");
+                alert("Access Denied: Unrecognized Admin Domain ID.");
                 firebase.auth().signOut();
             }
             document.getElementById('admin-dashboard-screen').classList.add('hidden');
@@ -42,9 +40,7 @@ function processAdminLogin() {
 }
 
 function adminLogout() {
-    firebase.auth().signOut().then(() => {
-        location.reload();
-    });
+    firebase.auth().signOut().then(() => { location.reload(); });
 }
 
 function listenToDatabase() {
@@ -60,9 +56,7 @@ function listenToDatabase() {
     });
 }
 
-function saveDB() { 
-    database.ref('portal_db').set(db); 
-}
+function saveDB() { database.ref('portal_db').set(db); }
 
 function adminNext(curr, next) { 
     document.querySelectorAll('.admin-step').forEach(el => el.classList.add('hidden'));
@@ -117,7 +111,7 @@ function updateAdminChSelect() {
 
 function addBranch() {
     let name = document.getElementById('adm-branch-name').value.trim();
-    if(name) { if(!db.branches[name]) db.branches[name] = {}; saveDB(); alert(`Branch "${name}" saved.`); adminNext(2, 1); }
+    if(name) { if(!db.branches[name]) db.branches[name] = {}; saveDB(); alert(`Branch "${name}" saved.`); document.getElementById('adm-branch-name').value = ""; adminNext(2, 1); }
 }
 
 function addSubject() {
@@ -134,7 +128,7 @@ function addSubject() {
         alert(`Subject "${sub}" successfully added!`);
         document.getElementById('adm-sub-name').value = "";
         adminNext(4, 1);
-    } else { alert("Please fill all information!"); }
+    } else { alert("Please fill all fields!"); }
 }
 
 function addSyllabusLink() {
@@ -147,7 +141,7 @@ function addSyllabusLink() {
         if(!db.branches[branch][sem][sub]) db.branches[branch][sem][sub] = { chapters: [], price: 0 };
         db.branches[branch][sem][sub].syllabus = link;
         saveDB();
-        alert("Syllabus link synced and saved!");
+        alert("Syllabus configuration updated successfully!");
         document.getElementById('adm-syl-link').value = "";
         adminNext('syllabus', 1);
     } else { alert("બધી માહિતી ભરો!"); }
@@ -162,10 +156,10 @@ function addChapter() {
     if(branch && sem && sub && chName) { 
         if(!db.branches[branch][sem][sub].chapters) db.branches[branch][sem][sub].chapters = [];
         db.branches[branch][sem][sub].chapters.push({ name: chName, yt: "#", pdf: "#" }); 
-        saveDB(); alert(`Chapter "${chName}" added.`); 
+        saveDB(); alert(`Chapter "${chName}" added successfully.`); 
         document.getElementById('adm-ch-name').value = "";
         adminNext(5, 1);
-    } else { alert("Please select all parameters!"); }
+    } else { alert("Parameters dynamic error!"); }
 }
 
 function addMaterial() {
@@ -173,7 +167,7 @@ function addMaterial() {
     if(branch && sem && sub && chIdx !== "") { 
         let ch = db.branches[branch][sem][sub].chapters[chIdx];
         if(yt) ch.yt = yt; if(pdf) ch.pdf = pdf; 
-        saveDB(); alert("Material links synchronized!"); 
+        saveDB(); alert("Cloud content streams updated!"); 
         document.getElementById('adm-mat-yt').value = "";
         document.getElementById('adm-mat-pdf').value = "";
         adminNext(6, 1);
@@ -185,7 +179,7 @@ function addPYQ() {
     if(branch && sem && sub && year && link) {
         if(!db.pyqs) db.pyqs = {}; if(!db.pyqs[branch]) db.pyqs[branch] = {}; if(!db.pyqs[branch][sem]) db.pyqs[branch][sem] = {}; if(!db.pyqs[branch][sem][sub]) db.pyqs[branch][sem][sub] = [];
         db.pyqs[branch][sem][sub].push({ year: year, link: link }); 
-        saveDB(); alert(`PYQ Paper for ${year} linked completely.`);
+        saveDB(); alert(`Past paper for ${year} linked.`);
         document.getElementById('adm-pyq-year').value = "";
         document.getElementById('adm-pyq-link').value = "";
         adminNext('pyq', 1);
@@ -196,24 +190,24 @@ function postNotification() {
     let text = document.getElementById('adm-notif-text').value.trim();
     if(text) {
         database.ref('notifications').push({ text: text, time: firebase.database.ServerValue.TIMESTAMP });
-        alert("Announcement pushed globally!");
+        alert("Notification pushed to global portal!");
         document.getElementById('adm-notif-text').value = "";
         adminNext('notif', 1);
     }
 }
 
-function openDeleteManager() { adminNext(1, 'delete'); document.getElementById('delete-items-list').innerHTML = "<p style='color:#94a3b8; text-align:center;'>Make a selection above...</p>"; }
+function openDeleteManager() { adminNext(1, 'delete'); document.getElementById('delete-items-list').innerHTML = "<p style='color:#94a3b8; text-align:center;'>Select filter criteria above...</p>"; }
 
 function renderDeleteItems() {
     let branch = document.getElementById('adm-del-branch-select').value; let sem = document.getElementById('adm-del-sem-select').value; let container = document.getElementById('delete-items-list'); container.innerHTML = "";
-    if(!branch || !sem || !db.branches[branch] || !db.branches[branch][sem] || Object.keys(db.branches[branch][sem]).length === 0) { container.innerHTML = "<p style='color:#ef4444; text-align:center;'>Data not available.</p>"; return; }
+    if(!branch || !sem || !db.branches[branch] || !db.branches[branch][sem] || Object.keys(db.branches[branch][sem]).length === 0) { container.innerHTML = "<p style='color:#ef4444; text-align:center;'>No structural data found.</p>"; return; }
     let subjects = db.branches[branch][sem];
     Object.keys(subjects).forEach(subName => {
         let div = document.createElement('div'); div.className = "admin-manage-item"; div.innerHTML = `<div class="admin-manage-header"><span>📘 ${subName} (₹${subjects[subName].price || 0})</span><button style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:16px;" onclick="deleteItem('${branch}', '${sem}', '${subName}')">❌</button></div>`;
         if(subjects[subName].chapters) {
             subjects[subName].chapters.forEach((ch, idx) => {
-                let chDiv = document.createElement('div'); chDiv.style.margin = "10px 0 0 15px"; chDiv.innerHTML = `<div>📄 ${ch.name}</div>
-                    <div class="admin-manage-buttons"><button style="background:none; border:none; color:#fbbf24; cursor:pointer; margin-right:8px; font-size:16px;" onclick="editItem('${branch}', '${sem}', '${subName}', ${idx})">✏️</button><button style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:16px;" onclick="deleteItem('${branch}', '${sem}', '${subName}', ${idx})">❌</button></div>`;
+                let chDiv = document.createElement('div'); chDiv.style.margin = "10px 0 0 10px"; chDiv.innerHTML = `<div style="font-size:13px; color:#cbd5e1;">📄 ${ch.name}</div>
+                    <div class="admin-manage-buttons"><button style="background:none; border:none; color:#fbbf24; cursor:pointer; font-size:14px;" onclick="editItem('${branch}', '${sem}', '${subName}', ${idx})">✏️ Edit</button><button style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px; margin-left:15px;" onclick="deleteItem('${branch}', '${sem}', '${subName}', ${idx})">❌ Remove</button></div>`;
                 div.appendChild(chDiv);
             });
         }
@@ -222,8 +216,8 @@ function renderDeleteItems() {
 }
 
 function deleteItem(branch, sem, subName, chIdx = null) {
-    if (chIdx === null) { if (confirm(`Delete subject?`)) { delete db.branches[branch][sem][subName]; } } 
-    else { if (confirm(`Remove chapter?`)) { db.branches[branch][sem][subName].chapters.splice(chIdx, 1); } }
+    if (chIdx === null) { if (confirm(`Delete subject data completely?`)) { delete db.branches[branch][sem][subName]; } } 
+    else { if (confirm(`Remove this specific chapter?`)) { db.branches[branch][sem][subName].chapters.splice(chIdx, 1); } }
     saveDB(); renderDeleteItems();
 }
 
@@ -235,7 +229,7 @@ function editItem(branch, sem, subName, chIdx) {
 function openStudentManager() {
     adminNext(1, 'students');
     let listContainer = document.getElementById('admin-student-list');
-    listContainer.innerHTML = "<p style='color:#94a3b8; text-align:center;'>Loading students...</p>";
+    listContainer.innerHTML = "<p style='color:#94a3b8; text-align:center;'>Fetching cluster arrays...</p>";
     database.ref('registered_students').once('value').then(snap => {
         listContainer.innerHTML = "";
         if(snap.exists()) {
@@ -246,10 +240,10 @@ function openStudentManager() {
                 div.className = "user-list-item";
                 div.innerHTML = `
                     <div class="user-list-info">
-                        <div>${s.name} <span style="font-weight:400;">(${s.enroll || 'No Enroll'})</span></div>
-                        <span>${s.branch} | ${s.sem} | ${s.college}</span>
+                        <div>${s.name}</div>
+                        <span>ID: ${s.enroll || 'N/A'}<br>${s.branch} | ${s.sem}</span>
                     </div>
-                    <button class="btn-admin btn-danger-admin" style="padding: 8px 12px; font-size:12px;" onclick="deleteStudent('${uid}', '${s.name}')">Delete</button>
+                    <button class="btn-admin btn-danger-admin" style="padding: 8px 12px; font-size:12px; width:auto;" onclick="deleteStudent('${uid}', '${s.name}')">Delete</button>
                 `;
                 listContainer.appendChild(div);
             });
@@ -258,17 +252,15 @@ function openStudentManager() {
 }
 
 function deleteStudent(uid, name) {
-    if(confirm(`Are you sure you want to completely delete student: ${name}?`)) {
-        database.ref('registered_students/' + uid).remove().then(() => {
-            alert(`${name} has been deleted.`); openStudentManager();
-        });
+    if(confirm(`Are you sure you want to permanently delete: ${name}?`)) {
+        database.ref('registered_students/' + uid).remove().then(() => { alert("Record purged."); openStudentManager(); });
     }
 }
 
 function openPaymentManager() {
     adminNext(1, 'payments');
     let listContainer = document.getElementById('admin-payment-list');
-    listContainer.innerHTML = "<p style='color:#94a3b8; text-align:center;'>Loading payment requests...</p>";
+    listContainer.innerHTML = "<p style='color:#94a3b8; text-align:center;'>Reading stream snapshot...</p>";
     database.ref('payment_requests').on('value', snap => {
         listContainer.innerHTML = "";
         if(snap.exists()) {
@@ -276,45 +268,41 @@ function openPaymentManager() {
                 let reqId = child.key; let r = child.val();
                 database.ref(`registered_students/${r.uid}`).once('value').then(sSnap => {
                     let sName = sSnap.exists() ? sSnap.val().name : "Unknown Student";
-                    let sEnroll = sSnap.exists() ? sSnap.val().enroll : "No Enroll";
+                    let sEnroll = sSnap.exists() ? sSnap.val().enroll : "N/A";
                     let div = document.createElement('div');
                     div.className = "admin-manage-item";
                     div.innerHTML = `
-                        <div style="font-size:14px; color:#e2e8f0; line-height:1.6;">
-                            <b>Student:</b> ${sName} (${sEnroll})<br>
-                            <b>Subject:</b> <span style="color:#38bdf8;">${r.subject}</span> (Price: ₹${r.price})<br>
-                            <b>UTR Number:</b> <span style="color:#10b981; font-weight:600; font-size:15px;">${r.utr}</span>
+                        <div style="font-size:13.5px; color:#cbd5e1; line-height:1.6;">
+                            <b>User:</b> ${sName} (${sEnroll})<br>
+                            <b>Target:</b> <span style="color:#38bdf8;">${r.subject}</span> (Price: ₹${r.price})<br>
+                            <b>UTR ID:</b> <span style="color:#10b981; font-weight:600;">${r.utr}</span>
                         </div>
                         <div class="admin-btn-group" style="margin-top:12px;">
-                            <button class="btn-admin" style="background:#10b981; padding:6px 12px; font-size:12px;" onclick="approvePayment('${reqId}', '${r.uid}', '${r.subject}')">Approve ✅</button>
-                            <button class="btn-admin btn-danger-admin" style="padding:6px 12px; font-size:12px;" onclick="rejectPayment('${reqId}', '${r.uid}', '${r.subject}')">Reject ❌</button>
+                            <button class="btn-admin" style="background:#10b981; padding:8px; font-size:13px;" onclick="approvePayment('${reqId}', '${r.uid}', '${r.subject}')">Approve ✅</button>
+                            <button class="btn-admin btn-danger-admin" style="padding:8px; font-size:13px;" onclick="rejectPayment('${reqId}', '${r.uid}', '${r.subject}')">Reject ❌</button>
                         </div>
                     `;
                     listContainer.appendChild(div);
                 });
             });
         } else {
-            listContainer.innerHTML = "<p style='color:#94a3b8; text-align:center;'>No pending payment approvals! 🎉</p>";
+            listContainer.innerHTML = "<p style='color:#94a3b8; text-align:center;'>No pending verification queues. 🎉</p>";
         }
     });
 }
 
 function approvePayment(reqId, uid, subject) {
-    if(confirm(`Approve payment and unlock "${subject}"?`)) {
+    if(confirm(`Verify ledger match and unlock "${subject}"?`)) {
         database.ref(`registered_students/${uid}/unlocked_subjects/${subject}`).set("approved").then(() => {
-            database.ref(`payment_requests/${reqId}`).remove().then(() => {
-                alert("Subject unlocked! 🎉"); openPaymentManager();
-            });
+            database.ref(`payment_requests/${reqId}`).remove().then(() => { alert("Access granted!"); openPaymentManager(); });
         });
     }
 }
 
 function rejectPayment(reqId, uid, subject) {
-    if(confirm("Reject this fake UTR transaction request?")) {
+    if(confirm("Deny execution and clear tracking branch?")) {
         database.ref(`registered_students/${uid}/unlocked_subjects/${subject}`).remove().then(() => {
-            database.ref(`payment_requests/${reqId}`).remove().then(() => {
-                alert("Request rejected."); openPaymentManager();
-            });
+            database.ref(`payment_requests/${reqId}`).remove().then(() => { alert("Request declined."); openPaymentManager(); });
         });
     }
 }
